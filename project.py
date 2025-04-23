@@ -7,14 +7,16 @@ PS = [0.2, 0.4, 0.6, 0.8]
 BS = [32, 256, 1024, 8192]
 M = 5
 
-def produce_seq():
+def produce_seqs():
     xk = [0,1]
     seqs = []
     for i in range(len(PS)):
         p=PS[i]
         pk = (1-p, p)
         dist = stats.rv_discrete(values=(xk,pk))
-        seq = dist.rvs(size=N)
+        list_seq = dist.rvs(size=N).tolist()
+        list_seq_str = list(map(lambda x: str(x), list_seq))
+        seq = ''.join(list_seq_str)
         seqs.append(seq)
     return seqs
 
@@ -47,17 +49,36 @@ def encode_sequence(seq, B):
             encoded_blocks[bl_n] += block[B-k:]
             E+=k
     return encoded_blocks, S, E
-                        
-                            
 
+
+def decode_sequence(encoded_seq):
+    decoded_seq= ""
+    for block in encoded_seq:
+        for k in block:
+            decoded_seq += "0"*int(k)
+            if k != M:
+                decoded_seq += "1"
+
+    return decoded_seq
+
+            
+#TODO Resolve extra bit issue
 def main():
-    seqs = produce_seq()
-    for np, seq in enumerate(seqs):
-        for B in BS:
-            encoded_seq, S, E = encode_sequence(seq, B)
-            bitrate = 1/N * (S * math.log2(M+1) + E)
-            print("B=", B, "p=", PS[np], "bitrate= ", bitrate)
-        print("\n")
+    seqs = produce_seqs()
+    enc_seq, S, E = encode_sequence(seqs[0], BS[0])
+    dec_seq = decode_sequence(enc_seq)
+    print(seqs[0], "\n")
+    print(enc_seq)
+    print(dec_seq)
+    # for np, seq in enumerate(seqs):
+    #     for B in BS:
+    #         encoded_seq, S, E = encode_sequence(seq, B)
+    #         # print(encoded_seq)
+    #         bitrate = 1/N * (S * math.log2(M+1) + E)
+    #         # print("B=", B, "p=", PS[np], "bitrate= ", bitrate)
+    #         correct = seq == decode_sequence(encoded_seq)
+    #         print(correct)
+    #     print("\n")
     # print(seqs[0])
     # print(encode_sequence(seqs[0], BS[0]))
             
