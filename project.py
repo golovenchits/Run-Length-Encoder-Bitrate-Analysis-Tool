@@ -2,6 +2,7 @@ import random
 from scipy import stats
 import numpy as np
 import math
+from matplotlib import pyplot as plt
 N = 8192
 PS = [0.2, 0.4, 0.6, 0.8]
 BS = [32, 256, 1024, 8192]
@@ -67,14 +68,20 @@ def decode_sequence(encoded_seq):
             
 def main():
     seqs = produce_seqs()
-    for np, seq in enumerate(seqs):
-        for B in BS:
+    for B in BS:
+        bitrates = []
+        for np, seq in enumerate(seqs):
             encoded_seq, S, E = encode_sequence(seq, B)
             bitrate = 1/N * (S * math.log2(M+1) + E)
-            print("B=", B, "p=", PS[np], "bitrate= ", bitrate)
+            bitrates.append(bitrate)
+            # print("B=", B, "p=", PS[np], "bitrate= ", bitrate)
             # correct = seq == decode_sequence(encoded_seq) #verify encoding correctness
             # print(correct)
-        print("\n")
+        plt.plot(PS, bitrates, "-o", label="B="+str(B))
+        plt.legend()
+    plt.xlabel("P(Success)")
+    plt.ylabel("Bitrate")
+    plt.show()
             
 
 
