@@ -46,7 +46,7 @@ def encode_sequence(seq, B):
             else:
                 k += 1
         if k != 0:
-            encoded_blocks[bl_n] += block[B-k:]
+            encoded_blocks[bl_n] += "x" * k
             E+=k
     return encoded_blocks, S, E
 
@@ -55,32 +55,26 @@ def decode_sequence(encoded_seq):
     decoded_seq= ""
     for block in encoded_seq:
         for k in block:
-            decoded_seq += "0"*int(k)
-            if k != M:
-                decoded_seq += "1"
+            if k == "x":
+                decoded_seq += "0"
+            else:
+                decoded_seq += "0"*int(k)
+                if int(k) != M:
+                    decoded_seq += "1"
 
     return decoded_seq
 
             
-#TODO Resolve extra bit issue
 def main():
     seqs = produce_seqs()
-    enc_seq, S, E = encode_sequence(seqs[0], BS[0])
-    dec_seq = decode_sequence(enc_seq)
-    print(seqs[0], "\n")
-    print(enc_seq)
-    print(dec_seq)
-    # for np, seq in enumerate(seqs):
-    #     for B in BS:
-    #         encoded_seq, S, E = encode_sequence(seq, B)
-    #         # print(encoded_seq)
-    #         bitrate = 1/N * (S * math.log2(M+1) + E)
-    #         # print("B=", B, "p=", PS[np], "bitrate= ", bitrate)
-    #         correct = seq == decode_sequence(encoded_seq)
-    #         print(correct)
-    #     print("\n")
-    # print(seqs[0])
-    # print(encode_sequence(seqs[0], BS[0]))
+    for np, seq in enumerate(seqs):
+        for B in BS:
+            encoded_seq, S, E = encode_sequence(seq, B)
+            bitrate = 1/N * (S * math.log2(M+1) + E)
+            print("B=", B, "p=", PS[np], "bitrate= ", bitrate)
+            # correct = seq == decode_sequence(encoded_seq) #verify encoding correctness
+            # print(correct)
+        print("\n")
             
 
 
